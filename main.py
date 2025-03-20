@@ -1,14 +1,18 @@
 from fastapi import FastAPI
-from pydantic import BaseModel
 import requests
 
 from config import OLLAMA_RESTAPI_URL, MODEL_NAME
-from models import Question
+from models import QuestionDTO, ResponseDTO
 
 app = FastAPI()
 
-@app.post("/ask")
-async def ask_llm(question: Question) :
+@app.get("/")
+def home() :
+    return "Hello World!"
+
+
+@app.post("/ask", response_model = ResponseDTO)
+async def ask_llm(question: QuestionDTO) :
     payload = {
         "model" : MODEL_NAME,
         "prompt" : question.prompt,
@@ -18,6 +22,10 @@ async def ask_llm(question: Question) :
     response = requests.post(OLLAMA_RESTAPI_URL, json=payload)
 
     if response.status_code == 200 :
-        return response.json()
+        data = response.json()
+        return ResponseDTO(
+            created_at = data.get("created_at"),
+            response = data.get("response")
+        )
     else :
         return {"error" : "Failed to get response from LLM"}
