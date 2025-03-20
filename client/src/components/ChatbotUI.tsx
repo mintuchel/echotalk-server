@@ -15,23 +15,31 @@ const ChatbotUI: React.FC = () => {
 
   async function processUserQuery(prompt: string) {
     try {
-      const response = await axios.post(import.meta.env.VITE_API_URL, {
-        model_name: "phi",
-        prompt: prompt,
-      });
+      const API_URL = "http://localhost:8000/ask";
 
-      const combinedResponse = response.data.response || "Please try again";
+      const questionRequest = { prompt };
+
+      const response = await axios.post(API_URL, questionRequest);
+
+      const answerResponse = response.data;
 
       setMessages((prevMessages) => [
         ...prevMessages,
-        { id: Date.now(), text: combinedResponse, sender: "bot" },
+        {
+          id: answerResponse.created_at,
+          text: answerResponse.response,
+          sender: "bot",
+        },
       ]);
     } catch (error) {
       console.error("Error fetching response:", error);
     }
   }
 
+  // 사용자가 Send 버튼을 눌렀을때 또는 Enter 키를 눌렀을때 실행됨
+  // 사용자의 입력 메시지를 저장하고 UI에 추가
   const handleSendMessage = async () => {
+    // 빈 입력 시 아무 동작 안함
     if (inputMessage.trim() === "") return;
 
     const userQuery: Message = {
@@ -39,8 +47,15 @@ const ChatbotUI: React.FC = () => {
       text: inputMessage.trim(),
       sender: "user",
     };
+
+    // userQuery 객체를 생성해서 입력된 메시지를 "user" 형태로 저장장
     setMessages((prevMessages) => [...prevMessages, userQuery]);
+
+    // 입력창 초기화
     setInputMessage("");
+
+    // processUserQuery 메서드를 사용해서 서버로 요청
+    // 서버에서 응답을 받으면 BOT의 메시지가 UI에 추가됨됨
     await processUserQuery(inputMessage);
 
     if (scrollViewRef.current) {
