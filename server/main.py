@@ -1,11 +1,22 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 import requests
 
 from config import OLLAMA_RESTAPI_URL, MODEL_NAME
-from server.models import QuestionDTO, ResponseDTO
+from models import QuestionDTO, ResponseDTO
 
 # 서버 실행
 app = FastAPI()
+
+# CORS 설정 추가
+# local vite 클라이언트 서버에서 요청 받을 수 있도록
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"], 
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/")
 def home() :
