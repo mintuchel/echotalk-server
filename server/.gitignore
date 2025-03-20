@@ -1,0 +1,33 @@
+# Python 기본 파일
+__pycache__/
+*.py[cod]
+*.so
+*.pyd
+*.swp
+*.swo
+*.swn
+*.log
+
+# 환경 설정 파일
+.env
+*.env
+
+# 가상환경 폴더
+venv/
+.env/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# IDE 및 편집기 파일
+.vscode/
+.idea/
+*.iml
+*.sublime-workspace
+*.sublime-project
+.DS_Store
+Thumbs.db
+
+# FastAPI + Uvicorn 관련
+instance/
+*.db
