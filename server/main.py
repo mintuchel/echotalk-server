@@ -2,8 +2,9 @@ from fastapi import FastAPI
 import requests
 
 from config import OLLAMA_RESTAPI_URL, MODEL_NAME
-from models import QuestionDTO, ResponseDTO
+from server.models import QuestionDTO, ResponseDTO
 
+# 서버 실행
 app = FastAPI()
 
 @app.get("/")
