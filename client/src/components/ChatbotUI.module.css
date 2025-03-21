@@ -1,8 +1,8 @@
 .chatContainer {
   display: flex;
   flex-direction: column;
-  width: 400px;
-  height: 600px;
+  width: 800px;
+  height: 800px;
   border: 1px solid #ccc;
   border-radius: 10px;
   overflow: hidden;
@@ -14,13 +14,17 @@
   overflow-y: auto;
   padding: 10px;
   background-color: #f9f9f9;
+  flex-direction: column; /* 메시지 세로로 쌓기 */
 }
 
 .message {
-  max-width: 75%;
+  max-width: 60%;
+  width: fit-content;
   padding: 10px;
   border-radius: 10px;
   margin-bottom: 10px;
+  word-wrap: break-word; /* 긴 단어 줄바꿈 */
+  white-space: pre-wrap; /* 줄바꿈 적용 */
 }
 
 .user {
