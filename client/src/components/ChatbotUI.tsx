@@ -80,10 +80,10 @@ const ChatbotUI: React.FC = () => {
           type="text"
           value={inputMessage}
           onChange={(e) => setInputMessage(e.target.value)}
-          placeholder="Type your message..."
+          placeholder="메시지를 입력하세요"
           onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
         />
-        <button onClick={handleSendMessage}>Send</button>
+        <button onClick={handleSendMessage}>전송</button>
       </div>
     </div>
   );

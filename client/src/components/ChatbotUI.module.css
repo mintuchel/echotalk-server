@@ -14,6 +14,7 @@
   overflow-y: auto;
   padding: 10px;
   background-color: #f9f9f9;
+  display: flex;
   flex-direction: column; /* 메시지 세로로 쌓기 */
 }
 
@@ -25,6 +26,7 @@
   margin-bottom: 10px;
   word-wrap: break-word; /* 긴 단어 줄바꿈 */
   white-space: pre-wrap; /* 줄바꿈 적용 */
+  display: flex;
 }
 
 .user {
@@ -34,7 +36,8 @@
 }
 
 .bot {
-  background-color: #73c4e2;
+  /* background-color: #73c4e2; */
+  background-color: #aeb6bf;
   align-self: flex-start;
   color: black;
 }
