@@ -104,3 +104,6 @@ server/docker-cache/
 # 📌 Git 관련 (서브모듈 무시)
 # =============================
 .gitmodules
+
+chroma/chroma_db/
+server/chroma_db/
