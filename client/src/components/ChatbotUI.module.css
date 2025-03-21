@@ -19,7 +19,7 @@
 
 .message {
   max-width: 60%;
-  width: fit-content;
+  width: fit-content; /* 내용에 맞게 길이 조정 */
   padding: 10px;
   border-radius: 10px;
   margin-bottom: 10px;

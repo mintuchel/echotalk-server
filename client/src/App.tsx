@@ -6,11 +6,19 @@ const App: React.FC = () => {
     <div
       style={{
         display: "flex",
+        flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
         height: "100vh",
       }}
     >
+      <div
+        style={{
+          padding: "0.5rem",
+        }}
+      >
+        <h2>Local ChatBot</h2>
+      </div>
       <ChatbotUI />
     </div>
   );
