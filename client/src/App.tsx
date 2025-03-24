@@ -17,7 +17,10 @@ const App: React.FC = () => {
           padding: "0.5rem",
         }}
       >
-        <h2>Local ChatBot</h2>
+        <div style={{ display: "flex" }}>
+          <h2 style={{ color: "blue" }}>SICT</h2>
+          <h2> Local ChatBot</h2>
+        </div>
       </div>
       <ChatbotUI />
     </div>
