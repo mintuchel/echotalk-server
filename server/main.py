@@ -32,7 +32,7 @@ def query_chromadb(query):
     query_embedding = embedding_model.encode(query).tolist()
 
     results = collection.query(
-        query_texts=[query_embedding],
+        query_embeddings=[query_embedding],
         n_results=1  # 가장 관련 있는 1개 결과 반환
     )
 
@@ -41,7 +41,7 @@ def query_chromadb(query):
     if results["documents"][0]:  # 유사한 문서가 존재하면 반환
         similarity_score = results["distances"][0][0]
 
-        # 유사도 점수가 낮을수록 유사한거임
+        # 유사도 점수가 낮을수록 정확한 정보
         if similarity_score < 0.5:
             print(similarity_score)
             return results["metadatas"][0][0]["answer"]
