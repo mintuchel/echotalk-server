@@ -1,5 +1,5 @@
-import React from "react";
 import ChatbotUI from "./components/ChatbotUI";
+import Header from "./components/Header";
 
 const App: React.FC = () => {
   return (
@@ -10,19 +10,23 @@ const App: React.FC = () => {
         justifyContent: "center",
         alignItems: "center",
         height: "100vh",
+        position: "relative",
       }}
     >
       <div
         style={{
-          padding: "0.5rem",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          width: "100%",
+          height: "100%",
+          position: "relative",
         }}
       >
-        <div style={{ display: "flex" }}>
-          <h2 style={{ color: "blue" }}>SICT</h2>
-          <h2> Local ChatBot</h2>
-        </div>
+        <Header />
+        <ChatbotUI />
       </div>
-      <ChatbotUI />
     </div>
   );
 };
