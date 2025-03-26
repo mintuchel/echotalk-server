@@ -1,19 +1,13 @@
-import React, { useState } from "react";
+import React from "react";
 import styles from "./DateLabels.module.css";
 
-const DateLabels: React.FC<{ onDateSelect: (date: string) => void }> = ({
-  onDateSelect,
-}) => {
-  const dates = ["2024-03-26", "2024-03-25", "2024-03-24"];
+const DateLabels: React.FC = () => {
+  const dates = ["2025-03-26", "2025-03-25", "2025-03-24"];
 
   return (
     <div className={styles.labelContainer}>
       {dates.map((date, index) => (
-        <button
-          key={index}
-          className={styles.labelButton}
-          onClick={() => onDateSelect(date)}
-        >
+        <button key={index} className={styles.labelButton}>
           {date}
         </button>
       ))}
