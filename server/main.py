@@ -3,11 +3,19 @@ from fastapi.middleware.cors import CORSMiddleware
 from sentence_transformers import SentenceTransformer  # 임베딩 모델
 import requests
 import chromadb
+import mysql.connector
 
 from config import OLLAMA_RESTAPI_URL, MODEL_NAME
 from models import QuestionDTO, ResponseDTO
 from datetime import datetime
 
+# MySQL 접속 정보
+DB_CONFIG = {
+    "host": "localhost",
+    "user": "root",
+    "password": "1234",
+    "database": "ollamap"
+}
 
 # 서버 실행
 app = FastAPI()
@@ -52,6 +60,47 @@ def query_chromadb(query):
 def home() :
     return "Hello World!"
 
+@app.get("/history/{date}")
+def get_history(date: str):
+    try:
+        conn = mysql.connector.connect(**DB_CONFIG)
+        cursor = conn.cursor(dictionary=True)
+
+        query = "SELECT question, answer FROM history WHERE date = %s"
+        cursor.execute(query, (date,))
+        records = cursor.fetchall()
+
+        cursor.close()
+        conn.close()
+
+        print(records)
+        
+        return {"date": date, "history": records}
+
+    except mysql.connector.Error as err:
+        return {"error": f"Database error: {err}"}
+
+# MySQL에 질문과 답변을 저장하는 함수
+def save_to_mysql(question: str, answer: str):
+    try:
+        conn = mysql.connector.connect(**DB_CONFIG)
+        cursor = conn.cursor()
+
+        # 오늘의 날짜를 한국 시간 기준으로 "YYYY-MM-DD" 형식으로 변환
+        today_date = datetime.now().strftime("%Y-%m-%d")
+
+        # 데이터 삽입 쿼리 실행
+        query = "INSERT INTO history (date, question, answer) VALUES (%s, %s, %s)"
+        values = (today_date, question, answer)
+        cursor.execute(query, values)
+        
+        # 변경사항 저장 및 연결 종료
+        conn.commit()
+        cursor.close()
+        conn.close()
+        print("데이터베이스에 저장 완료")
+    except mysql.connector.Error as err:
+        print(f"데이터베이스 오류: {err}")
 
 @app.post("/ask", response_model = ResponseDTO)
 async def ask_llm(question: QuestionDTO) :
@@ -69,6 +118,9 @@ async def ask_llm(question: QuestionDTO) :
     if answer :
         print("Chroma db 답변")
 
+        # MySQL에 저장
+        save_to_mysql(question.prompt, answer)
+
         return ResponseDTO(
             created_at = datetime.now().isoformat(),
             response = answer
@@ -78,6 +130,10 @@ async def ask_llm(question: QuestionDTO) :
 
     if response.status_code == 200 :
         data = response.json()
+
+        # MySQL에 저장
+        save_to_mysql(question.prompt, data.get("response"))
+
         return ResponseDTO(
             created_at = data.get("created_at"),
             response = data.get("response")
