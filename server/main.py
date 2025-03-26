@@ -42,9 +42,9 @@ def query_chromadb(query):
         similarity_score = results["distances"][0][0]
 
         # 유사도 점수가 낮을수록 정확한 정보
-        if similarity_score < 0.5:
-            print(similarity_score)
-            return results["metadatas"][0][0]["answer"]
+        # if similarity_score < 0.5:
+        print(similarity_score)
+        return results["metadatas"][0][0]["answer"]
     
     return None
 
