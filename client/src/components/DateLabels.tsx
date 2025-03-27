@@ -10,7 +10,13 @@ interface DateLabelsProps {
 }
 
 const DateLabels: React.FC<DateLabelsProps> = ({ onDateSelect }) => {
-  const dates = ["2025-03-26", "2025-03-25", "2025-03-24", "2025-03-23"];
+  const dates = [
+    "2025-03-27",
+    "2025-03-26",
+    "2025-03-25",
+    "2025-03-24",
+    "2025-03-23",
+  ];
 
   // 클릭하면 서버로부터 과거 대화를 받아 message 배열로 전달
   const fetchHistory = async (date: string) => {

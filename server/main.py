@@ -9,6 +9,9 @@ from config import OLLAMA_RESTAPI_URL, MODEL_NAME
 from models import QuestionDTO, ResponseDTO
 from datetime import datetime
 
+# Sentence Transformer 모델 로드
+embedding_model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-V2")
+
 # MySQL 접속 정보
 DB_CONFIG = {
     "host": "localhost",
@@ -29,33 +32,26 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-chroma_client = chromadb.PersistentClient(path="./chroma_db")
-collection = chroma_client.get_collection(name = "menu_collection")
-
-embedding_model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
-
+# query_chromadb 수정 (최고 유사도 문서 반환)
 def query_chromadb(query):
+    chroma_client = chromadb.Client()
+    collection = chroma_client.get_or_create_collection(name="menu_collection")
+    
+    # 쿼리 임베딩 생성
+    query_embedding = embedding_model.encode([query])
 
-    query_embedding = embedding_model.encode(query).tolist()
-
+    # 가장 유사한 결과를 하나만 반환
     results = collection.query(
-        query_embeddings=[query_embedding],
+        query_embeddings=query_embedding,  # 쿼리 임베딩을 사용
         n_results=1  # 가장 관련 있는 1개 결과 반환
     )
 
-    print(results)
+    # 결과가 비어있는지 확인하고 적절히 처리
+    if results['documents']:  # documents가 비어있지 않으면
+        return results['documents'][0]  # 첫 번째 문서만 반환
+    else:  # 비어있으면 None 반환
+        return None
     
-    if results["documents"][0]:  # 유사한 문서가 존재하면 반환
-        similarity_score = results["distances"][0][0]
-
-        # 유사도 점수가 낮을수록 정확한 정보
-        # if similarity_score < 0.5:
-        print(similarity_score)
-        return results["metadatas"][0][0]["answer"]
-    
-    return None
-
 @app.get("/")
 def home() :
     return "Hello World!"
@@ -110,22 +106,20 @@ async def ask_llm(question: QuestionDTO) :
         "stream" : False
     }
 
-    # 제일 먼저 chromadb한테 물어보기
     answer = query_chromadb(question.prompt)
     
     print(answer)
     
-    if answer :
+    if answer:
         print("Chroma db 답변")
-
-        # MySQL에 저장
         save_to_mysql(question.prompt, answer)
-
+        
         return ResponseDTO(
-            created_at = datetime.now().isoformat(),
-            response = answer
+            created_at=datetime.now().isoformat(),
+            response=answer
         )
     
+    # ChromaDB에 답변이 없다면 Ollama API에 요청
     response = requests.post(OLLAMA_RESTAPI_URL, json=payload)
 
     if response.status_code == 200 :
