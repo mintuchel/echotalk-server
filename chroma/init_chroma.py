@@ -15,12 +15,12 @@ embedding_model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-V2")
 
 # 학습할 데이터
 documents = [
-    {"question": "3월 24일(월요일)에 나오는 점심 메뉴는 뭐야?", "answer": "흰밥/잡곡밥, 냉이된장국, 순살찜닭, 비빔만두, 맛살, 그린빈볶음, 콩나물무침, 샐러드"},
-    {"question": "3월 25일(화요일)에 나오는 점심 메뉴는 뭐야?", "answer": "흰밥/잡곡밥, 부대찌개, 함박스테이크, 떡볶이, 무나물, 실곤약야채무침, 샐러드"},
-    {"question": "3월 26일(수요일)에 나오는 점심 메뉴는 뭐야?", "answer": "흰밥/잡곡밥, 오징어무국, 돈육파불고기, 다코야끼, 감자채볶음, 미나리나물, 샐러드"},
-    {"question": "3월 27일(목요일)에 나오는 점심 메뉴는 뭐야?", "answer": "흰밥/잡곡밥, 미소장국, 치킨까스유린기, 로제스파게티, 미역줄기볶음, 오이무침, 샐러드"},
-    {"question": "3월 28일(금요일)에 나오는 점심 메뉴는 뭐야?", "answer": "흰밥/잡곡밥, 된장찌개, 보쌈, 해물까스, 무말랭이무침, 깻잎김치, 샐러드"},
-    {"question": "3월 31일(월요일)에 나오는 점심 메뉴는 뭐야?", "answer": "흰밥/잡곡밥, 소고기무국, 목살김치찜, 고추튀김, 돈나물, 건파래무침, 샐러드"},
+    "3월 24일(월요일)에 나오는 점심 메뉴는 흰밥/잡곡밥, 냉이된장국, 순살찜닭, 비빔만두, 맛살, 그린빈볶음, 콩나물무침, 샐러드",
+    "3월 25일(화요일)에 나오는 점심 메뉴는 흰밥/잡곡밥, 부대찌개개, 함박스테이크, 떡볶이, 무나물, 실곤약야채무침, 샐러드",
+    "3월 26일(수요일)에 나오는 점심 메뉴는 흰밥/잡곡밥, 오징어무국, 돈육파불고기, 다코야끼, 감자채볶음, 미나리나물, 샐러드",
+    "3월 27일(목요일)에 나오는 점심 메뉴는 흰밥/잡곡밥, 미소장국, 치킨까스유린기, 로제스파게티, 미역줄기볶음, 오이무침, 샐러드",
+    "3월 28일(금요일)에 나오는 점심 메뉴는 흰밥/잡곡밥, 된장찌개, 보쌈, 해물까스, 무말랭이무침, 깻잎김치, 샐러드",
+    "3월 31일(월요일)에 나오는 점심 메뉴는 흰밥/잡곡밥, 소고기무국, 목살김치찜, 고추튀김, 돈나물, 건파래무침, 샐러드"
 ]
 
 # faiss 사용중
@@ -46,10 +46,10 @@ for index, doc in tqdm(enumerate(documents), desc="데이터 임베딩 중"):
     
     ids.append(str(index))
     metadatas.append({"question": query, "answer": answer})
-    embeddings.append(embedding.tolist())  # ChromaDB는 list 형식의 벡터를 요구함
+    embeddings.append(embedding.tolist())
 
-# 데이터를 Chunk 단위로 저장 (대량 데이터 대비)
-chunk_size = 2  # 한 번에 처리할 크기 (데이터 많아지면 조정 가능)
+# 데이터를 Chunk 단위로 저장
+chunk_size = 2
 total_chunks = len(embeddings) // chunk_size + 1
 
 for chunk_idx in tqdm(range(total_chunks), desc="ChromaDB에 저장 중"):
@@ -60,9 +60,8 @@ for chunk_idx in tqdm(range(total_chunks), desc="ChromaDB에 저장 중"):
     chunk_ids = ids[start_idx:end_idx]
     chunk_metadatas = metadatas[start_idx:end_idx]
 
-    # ❗ 빈 리스트 방지: 비어 있으면 건너뛰기
     if not chunk_embeddings:
-        print(f"⚠️ 빈 데이터 발생 (chunk {chunk_idx}) → 저장 생략")
+        print(f"빈 데이터 발생 (chunk {chunk_idx})")
         continue
     
     collection.upsert(
@@ -71,4 +70,4 @@ for chunk_idx in tqdm(range(total_chunks), desc="ChromaDB에 저장 중"):
         metadatas=chunk_metadatas
     )
 
-print(f"✅ ChromaDB 저장 완료! 총 데이터 개수: {collection.count()}")
+print(f"ChromaDB 저장 완료! 총 데이터 개수: {collection.count()}")
