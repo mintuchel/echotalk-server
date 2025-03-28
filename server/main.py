@@ -32,24 +32,24 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-# query_chromadb 수정 (최고 유사도 문서 반환)
+
 def query_chromadb(query):
+    # ChromaDB 클라이언트 생성
     chroma_client = chromadb.Client()
+    
+    # 컬렉션 불러오기
     collection = chroma_client.get_or_create_collection(name="menu_collection")
     
-    # 쿼리 임베딩 생성
-    query_embedding = embedding_model.encode([query])
-
-    # 가장 유사한 결과를 하나만 반환
+    # 쿼리 실행 (가장 유사한 1개 반환)
     results = collection.query(
-        query_embeddings=query_embedding,  # 쿼리 임베딩을 사용
-        n_results=1  # 가장 관련 있는 1개 결과 반환
+        query_texts=[query],
+        n_results=1
     )
 
-    # 결과가 비어있는지 확인하고 적절히 처리
-    if results['documents']:  # documents가 비어있지 않으면
-        return results['documents'][0]  # 첫 번째 문서만 반환
-    else:  # 비어있으면 None 반환
+    # 결과 확인
+    if results and results["documents"][0]:
+        return results["metadatas"][0][0]["answer"]  # 가장 유사한 질문의 답변 반환
+    else:
         return None
     
 @app.get("/")
@@ -113,7 +113,7 @@ async def ask_llm(question: QuestionDTO) :
     if answer:
         print("Chroma db 답변")
         save_to_mysql(question.prompt, answer)
-        
+
         return ResponseDTO(
             created_at=datetime.now().isoformat(),
             response=answer

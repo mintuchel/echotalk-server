@@ -11,6 +11,7 @@ interface DateLabelsProps {
 
 const DateLabels: React.FC<DateLabelsProps> = ({ onDateSelect }) => {
   const dates = [
+    "2025-03-28",
     "2025-03-27",
     "2025-03-26",
     "2025-03-25",
