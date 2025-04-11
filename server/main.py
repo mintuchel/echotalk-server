@@ -1,7 +1,8 @@
-# app/main.py
+# server/main.py
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api.routes import router
+from app.api.main import api_router
 
 app = FastAPI()
 
@@ -15,4 +16,4 @@ app.add_middleware(
 )
 
 # 라우터 등록
-app.include_router(router)
+app.include_router(api_router)

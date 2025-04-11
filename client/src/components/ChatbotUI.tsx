@@ -63,7 +63,7 @@ const ChatbotUI: React.FC<ChatbotUIProps> = ({ messages, setMessages }) => {
   // 사용자 질문에 대한 답변 처리
   async function processUserQuery(prompt: string) {
     try {
-      const API_URL = "http://localhost:8000/ask";
+      const API_URL = "http://localhost:8000/chat";
       const response = await axios.post(API_URL, { prompt });
       const answerResponse = response.data;
 
