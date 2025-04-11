@@ -1,9 +1,8 @@
 from fastapi import APIRouter
 from datetime import datetime
-import requests
+from app.core.config import configs
 
 from app.models.schema import QuestionDTO, ResponseDTO
-from app.core.config import OLLAMA_RESTAPI_URL, MODEL_NAME
 from app.crud.conversation import create_conversation, get_conversation_by_date, get_conversation_dates
 from langchain_openai import ChatOpenAI
 
@@ -11,21 +10,18 @@ router = APIRouter(prefix="/chat", tags=["chat"])
 
 def ask_openai(prompt: str) :
     llm = ChatOpenAI(
-        api_key="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",
-        model_name="gpt-4o-mini",
-        temperature=0.8,
+        api_key = configs.openai_api_key,
+        model_name = "gpt-4o-mini",
+        temperature = 0.2, # 사실에 기반한 답변에 집중
     )
 
     # llm.invoke 는 동기 함수라 await 처리안해줘도 된다
     # return type은 AIMessage 객체이고 그 중에 content field를 추출해주면 답변만 추출가능
-    answer = llm.invoke(prompt)
-    print(answer.content)
-    return answer.content
+    response = llm.invoke(prompt)
+    print(response.content)
+    return response.content
 
-@router.get("/")
-def home():
-    return "Hello World!"
-
+# OpenAI를 활용하여 답변 return
 @router.post("", response_model=ResponseDTO)
 def ask_llm(question: QuestionDTO):
 
@@ -46,7 +42,7 @@ def get_chat_dates():
     except Exception as e:
         return {"error": str(e)}
 
-
+# 특정 날짜의 채팅 기록 보내기
 @router.get("/{date}")
 def get_chat_history(date: str):
     try:

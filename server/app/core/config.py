@@ -1,2 +1,9 @@
-OLLAMA_RESTAPI_URL = "http://localhost:11434/api/generate"
-MODEL_NAME = "mistral"
+from pydantic_settings import BaseSettings
+
+class Configurations(BaseSettings):
+    openai_api_key: str
+
+    class Config:
+        env_file = ".env"
+
+configs = Configurations()
