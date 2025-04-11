@@ -20,7 +20,7 @@ const Header: React.FC = () => {
         fontWeight: "bold",
       }}
     >
-      SICT Local ChatBot
+      EchoTalk
       <LanguageToggle language={language} setLanguage={setLanguage} />
     </div>
   );

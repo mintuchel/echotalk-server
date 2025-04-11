@@ -17,11 +17,11 @@ const App: React.FC = () => {
     <div
       style={{
         display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-        alignItems: "center",
+        flexDirection: "column", // ← 중요! 수평으로 배치
         height: "100vh",
+        width: "100vw",
         position: "relative",
+        border: "3px solid black"
       }}
     >
       {/* DateLabels 컴포넌트에게 handleDateSelect 함수를 Prop으로 전달*/}
