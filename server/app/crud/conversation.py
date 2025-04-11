@@ -16,17 +16,20 @@ def create_conversation(question: str, answer: str):
     cursor.close()
     conn.close()
 
+# 날짜들을 string List 형식으로 return
 def get_conversation_dates() :
     conn = get_connection()
     cursor = conn.cursor()
 
     query = "SELECT DATE_FORMAT(created_at, '%Y-%m-%d') AS dates FROM conversation GROUP BY dates ORDER BY dates DESC"
+    cursor.execute(query)
     records = cursor.fetchall()
 
     cursor.close()
     conn.close()
 
-    return records
+    date_list = [row[0] for row in records]
+    return date_list
 
 # 인자인 date 는 "2025-04-10" 같은 문자열
 def get_conversation_by_date(date: str):
