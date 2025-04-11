@@ -16,17 +16,20 @@ def ask_openai(prompt: str) :
         temperature=0.8,
     )
 
+    # llm.invoke 는 동기 함수라 await 처리안해줘도 된다
+    # return type은 AIMessage 객체이고 그 중에 content field를 추출해주면 답변만 추출가능
     answer = llm.invoke(prompt)
-    return answer
+    print(answer.content)
+    return answer.content
 
 @router.get("/")
 def home():
     return "Hello World!"
 
 @router.post("", response_model=ResponseDTO)
-async def ask_llm(question: QuestionDTO):
+def ask_llm(question: QuestionDTO):
 
-    answer = await ask_openai(question.prompt)
+    answer = ask_openai(question.prompt)
 
     if answer:
         create_conversation(question.prompt, answer)
