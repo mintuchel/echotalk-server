@@ -33,9 +33,7 @@ const DateLabels: React.FC<DateLabelsProps> = ({ onDateSelect }) => {
   // 클릭하면 서버로부터 과거 대화를 받아 message 배열로 전달
   const fetchHistory = async (date: string) => {
     try {
-      const response = await axios.get(
-        `http://localhost:8000/chat/history/${date}`
-      );
+      const response = await axios.get(`http://localhost:8000/chat/${date}`);
       const history = response.data.history;
 
       if (history) {
