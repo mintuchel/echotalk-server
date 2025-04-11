@@ -4,7 +4,7 @@ import requests
 
 from app.models.schema import QuestionDTO, ResponseDTO
 from app.core.config import OLLAMA_RESTAPI_URL, MODEL_NAME
-from app.crud.conversation import add_conversation, get_conversation_dates, get_conversation_by_date
+from app.crud.conversation import create_conversation, get_conversation_by_date, get_conversation_dates
 from langchain_openai import ChatOpenAI
 
 router = APIRouter(prefix="/chat", tags=["chat"])

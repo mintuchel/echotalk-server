@@ -20,7 +20,7 @@ def get_conversation_dates() :
     conn = get_connection()
     cursor = conn.cursor()
 
-    query = "SELECT DATE_FORMAT(created_at,"%Y-%m-%d") AS dates FROM conversation GROUP BY created_at ORDER BY DESC"
+    query = "SELECT DATE_FORMAT(created_at, '%Y-%m-%d') AS dates FROM conversation GROUP BY dates ORDER BY dates DESC"
     records = cursor.fetchall()
 
     cursor.close()
