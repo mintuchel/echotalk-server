@@ -30,7 +30,7 @@ const LanguageToggle: React.FC<LanguageToggleProps> = ({
         onChange={(e) => setLanguage(e.target.value)}
         style={{
           padding: "0.5rem 1rem",
-          fontSize: "1.2rem",
+          fontSize: "1rem",
           borderRadius: "8px",
           border: "2px solid #007bff",
           backgroundColor: "#f8f9fa",
@@ -39,8 +39,8 @@ const LanguageToggle: React.FC<LanguageToggleProps> = ({
           transition: "all 0.3s ease",
         }}
       >
-        <option value="mf">Minfest</option>
-        <option value="l3">llama3.3</option>
+        <option value="openai">openai</option>
+        <option value="exa">exaone</option>
         <option value="g3">gemma3</option>
         <option value="ds">deepseek-r1</option>
       </select>

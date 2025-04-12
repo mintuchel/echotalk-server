@@ -13,8 +13,9 @@
   flex: 1;
   overflow-y: auto;
   padding: 10px;
-  background-image: url("https://registry.npmmirror.com/@lobehub/icons-static-png/latest/files/light/ollama.png");
-  background-size: 250px;
+  /*background-image: url("https://registry.npmmirror.com/@lobehub/icons-static-png/latest/files/light/ollama.png");*/
+  background-image: url(https://avatars.githubusercontent.com/u/206007355?s=200&v=4);
+  background-size: 200px;
   background-position: center;
   background-repeat: no-repeat;
   display: flex;

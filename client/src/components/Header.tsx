@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import LanguageToggle from "./LanguageToggle";
 
 const Header: React.FC = () => {
-  const [language, setLanguage] = useState("mf");
+  const [language, setLanguage] = useState("openai");
 
   return (
     <div
