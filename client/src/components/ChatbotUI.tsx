@@ -97,7 +97,9 @@ const ChatbotUI: React.FC<ChatbotUIProps> = ({ messages, setMessages }) => {
           value={inputMessage}
           onChange={(e) => setInputMessage(e.target.value)}
           placeholder="메시지를 입력하세요"
-          onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
+          onKeyUp={(e) => {
+            if (e.key === "Enter") handleSendMessage();
+          }}
         />
         <button onClick={handleSendMessage}>전송</button>
       </div>
