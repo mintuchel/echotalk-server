@@ -1,14 +1,34 @@
 from fastapi import APIRouter
 from datetime import datetime
 from app.core.config import configs
+from typing import List
 
 from app.models.schema import QuestionDTO, ResponseDTO
 from app.crud.conversation import create_conversation, get_conversation_by_date, get_conversation_dates
 from langchain_openai import ChatOpenAI
+from app.db.connection import get_pinecone_connection
+from langchain_pinecone import PineconeVectorStore
+from langchain.embeddings.openai import OpenAIEmbeddings
 
 router = APIRouter(prefix="/chat", tags=["chat"])
 
-def ask_openai(prompt: str) :
+def ask_openai(question: str, contexts: List[str] = None) -> str :
+    if contexts:
+        context_text = "\n\n".join(contexts[:3])  # 상위 3개만 사용 (길이 제한 고려)
+        prompt = f"""다음 정보를 참고하여 사용자의 질문에 답하세요.
+
+        ### 문서 정보 ###
+        {context_text}
+
+        ### 사용자 질문 ###
+        {question}
+
+        ### 답변 ###
+        """
+    else:
+        prompt = question
+
+    
     llm = ChatOpenAI(
         api_key = configs.openai_api_key,
         model_name = "gpt-4o-mini",
@@ -21,11 +41,47 @@ def ask_openai(prompt: str) :
     print(response.content)
     return response.content
 
+def ask_pinecone(question: str):
+    conn = get_pinecone_connection()
+    embedding = OpenAIEmbeddings(openai_api_key=configs.openai_api_key)
+    vectordb = PineconeVectorStore(index=conn, embedding=embedding)
+
+    query_result = vectordb.similarity_search_with_score(query=question,k=5)
+
+    if not query_result :
+        return 0.0, []
+    
+    # 문서들을 담아 보낼 context
+    contexts = []
+    max_score = 0.0
+
+    for doc, score in query_result:
+        text = doc.page_content.replace("\n", "")[:500]
+        title = doc.metadata["title"]
+
+        contexts.append(text)
+        max_score = max(max_score, score)
+
+        print(score, title)
+        print(text, "....")
+        print("\n")
+        
+    return max_score, contexts
+
 # OpenAI를 활용하여 답변 return
 @router.post("", response_model=ResponseDTO)
 def ask_llm(question: QuestionDTO):
 
-    answer = ask_openai(question.prompt)
+    # pinecone 을 통해 얻어진 결과
+    max_score, contexts = ask_pinecone(question.prompt)
+
+    # 유사도가 작다면
+    if max_score < 0.5 :
+        print("score too low.. \n asking openai...")
+        answer = ask_openai(question.prompt)
+    else :
+        print("using Pinecone-based context for OpenAI prompt...")
+        answer = ask_openai(question.prompt, contexts)
 
     if answer:
         create_conversation(question.prompt, answer)
