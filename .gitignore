@@ -1,109 +1,33 @@
-# =============================
-# 🚀 공통적으로 제외할 파일들
-# =============================
+# Python 기본 파일
+__pycache__/
+*.py[cod]
+*.so
+*.pyd
+*.swp
+*.swo
+*.swn
+*.log
 
-# 환경 변수 파일 (API 키, DB 접속 정보 등)
+# 환경 설정 파일
 .env
-.env.local
-.env.production
-.env.*  # 모든 .env 관련 파일
+*.env
 
-# VSCode 및 IDE 관련 설정 파일
+# 가상환경 폴더
+venv/
+.env/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# IDE 및 편집기 파일
 .vscode/
 .idea/
-*.sublime-project
+*.iml
 *.sublime-workspace
-
-# 운영체제 관련 파일 (macOS, Windows)
+*.sublime-project
 .DS_Store
 Thumbs.db
-desktop.ini
 
-# =============================
-# 📌 프론트엔드 (React + TypeScript + Vite)
-# =============================
-
-# node_modules (필수!)
-client/node_modules/
-
-# Vite 빌드 결과물
-client/dist/
-client/.turbo/
-client/.vite/
-
-# TypeScript 빌드 결과물
-client/*.tsbuildinfo
-
-# 로그 파일 및 캐시
-client/npm-debug.log*
-client/yarn-debug.log*
-client/yarn-error.log*
-client/pnpm-debug.log*
-client/.eslintcache
-
-# 테스트 관련
-client/coverage/
-client/junit.xml
-
-# Next.js (혹시 프로젝트에서 Next.js를 사용할 경우)
-client/.next/
-client/out/
-
-# =============================
-# 📌 백엔드 (FastAPI + Python)
-# =============================
-
-# 가상환경 (venv, poetry, pipenv 등)
-server/venv/
-server/.venv/
-server/poetry.lock
-server/Pipfile
-server/Pipfile.lock
-
-# Python 컴파일된 캐시 파일
-server/__pycache__/
-server/*.pyc
-server/*.pyo
-server/*.pyd
-
-# FastAPI + Uvicorn 로그
-server/uvicorn.log
-server/gunicorn.log
-
-# 데이터베이스 관련
-server/db.sqlite3
-server/db.sqlite3-journal
-server/migrations/
-
-# 테스트 및 코드 품질 검사
-server/.pytest_cache/
-server/.mypy_cache/
-server/.coverage
-server/coverage/
-server/.hypothesis/
-
-# =============================
-# 📌 Ollama (로컬 AI 모델 관련)
-# =============================
-
-# Ollama 캐시 데이터 (모델 파일 등)
-~/.ollama/
-server/ollama_data/
-
-# =============================
-# 📌 Docker 관련 (선택 사항)
-# =============================
-
-# Docker 빌드 파일 및 컨테이너 데이터
-docker-compose.override.yml
-.dockerignore
-server/docker-data/
-server/docker-cache/
-
-# =============================
-# 📌 Git 관련 (서브모듈 무시)
-# =============================
-.gitmodules
-
-chroma/chroma_db/
-server/chroma_db/
+# FastAPI + Uvicorn 관련
+instance/
+*.db
