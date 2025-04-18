@@ -3,8 +3,8 @@ from datetime import datetime
 from app.core.config import configs
 from typing import List
 
-from app.models.schema import QuestionDTO, ResponseDTO
-from app.crud.conversation import create_conversation, get_conversation_by_date, get_conversation_dates
+from app.schema.chat import QuestionDTO, ResponseDTO
+from app.crud.message import create_message, get_message_by_date, get_message_dates
 from langchain_openai import ChatOpenAI
 from app.db.connection import get_pinecone_connection
 from langchain_pinecone import PineconeVectorStore
@@ -84,7 +84,7 @@ def ask_llm(question: QuestionDTO):
         answer = ask_openai(question.prompt, contexts)
 
     if answer:
-        create_conversation(question.prompt, answer)
+        create_message(question.prompt, answer)
         return ResponseDTO(created_at=datetime.now().isoformat(), response=answer)
     else :
         return {"error": "Failed to get response from LLM"}
@@ -93,7 +93,7 @@ def ask_llm(question: QuestionDTO):
 @router.get("/dates")
 def get_chat_dates():
     try:
-        date_list = get_conversation_dates()
+        date_list = get_message_dates()
         return {"dates": date_list}
     except Exception as e:
         return {"error": str(e)}
@@ -102,7 +102,7 @@ def get_chat_dates():
 @router.get("/{date}")
 def get_chat_history(date: str):
     try:
-        records = get_conversation_by_date(date)
+        records = get_message_by_date(date)
         return {"date": date, "history": records}
     except Exception as e:
         return {"error": str(e)}

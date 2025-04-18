@@ -1,11 +1,13 @@
-# server/main.py
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.main import api_router
-import os
+from database import engine, Base
+import models
 
 app = FastAPI()
+
+# 데이터베이스 테이블 생성
+models.Base.metadata.create_all(bind=engine)
 
 # CORS 설정
 app.add_middleware(
