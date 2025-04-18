@@ -3,7 +3,7 @@ from datetime import datetime
 from app.core.config import configs
 from typing import List
 
-from app.schema.chat import QuestionDTO, ResponseDTO
+from app.schemas.chat import QuestionDTO, ResponseDTO
 from app.crud.message import create_message, get_message_by_date, get_message_dates
 from langchain_openai import ChatOpenAI
 from app.db.connection import get_pinecone_connection
@@ -28,7 +28,6 @@ def ask_openai(question: str, contexts: List[str] = None) -> str :
     else:
         prompt = question
 
-    
     llm = ChatOpenAI(
         api_key = configs.openai_api_key,
         model_name = "gpt-4o-mini",
