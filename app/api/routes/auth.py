@@ -8,7 +8,7 @@ from app.schemas.user import UserCreate, UserResponse, UserLoginRequest
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
 # 회원가입
-@router.post("/signup", response_model=UserResponse)
+@router.post("/signup", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 def signup(user: UserCreate, db: Session = Depends(get_db)):
     # 이메일 중복 체크
     existing_user = db.query(User).filter(User.email == user.email).first()
@@ -31,7 +31,7 @@ def signup(user: UserCreate, db: Session = Depends(get_db)):
     return new_user
 
 # 로그인
-@router.post("/login", response_model=UserResponse)
+@router.post("/login", response_model=UserResponse, status_code=status.HTTP_200_OK)
 def login(user: UserLoginRequest, response: Response, db: Session = Depends(get_db)):
     db_user = db.query(User).filter(User.email == user.email).first()
 
@@ -45,5 +45,5 @@ def login(user: UserLoginRequest, response: Response, db: Session = Depends(get_
     # 클라이언트가 브라우저일 경우엔 FastAPI에서 Set-Cookie로 설정한 쿠키를 브라우저가 자동으로 저장하고, 이후 요청에 자동으로 쿠키를 담아서 보내줌
     response.set_cookie(key="user_id", value=db_user.id, httponly=True, max_age=3600)
 
-    # User 모델 객체지만 UserResponse에 맞춰 자동 변환됨
+    # User 모델 객체지만 Pydantic BaseModel 선언에 의해 UserResponse에 맞춰 자동 변환됨
     return db_user
