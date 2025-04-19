@@ -2,13 +2,18 @@ from fastapi import APIRouter
 from datetime import datetime
 from app.core.config import configs
 from typing import List
+from models import Chat
 
-from app.schemas.chat import QuestionDTO, ResponseDTO
+from app.schemas.chat import QuestionDTO, ResponseDTO, ChatCreate, ChatResponse
 from app.crud.message import create_message, get_message_by_date, get_message_dates
 from langchain_openai import ChatOpenAI
 from app.db.connection import get_pinecone_connection
 from langchain_pinecone import PineconeVectorStore
 from langchain.embeddings.openai import OpenAIEmbeddings
+from fastapi import APIRouter, HTTPException, Depends, status, Response
+from sqlalchemy.orm import Session
+
+from database import get_db
 
 router = APIRouter(prefix="/chat", tags=["chat"])
 
@@ -87,6 +92,17 @@ def ask_llm(question: QuestionDTO):
         return ResponseDTO(created_at=datetime.now().isoformat(), response=answer)
     else :
         return {"error": "Failed to get response from LLM"}
+
+@router.post("/chat", response_model=ChatResponse)
+def create_chat(chat_req: ChatCreate, db: Session = Depends(get_db)):
+    new_chat = Chat(
+        user_id=chat_req.user_id,
+        name=chat_req.name,
+    )
+    db.add(new_chat)
+    db.commit()
+    db.refresh(new_chat)
+    return new_chat
 
 # 날짜들을 json 형식으로 return
 @router.get("/dates")

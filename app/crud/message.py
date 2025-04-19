@@ -1,6 +1,3 @@
-from datetime import datetime
-from app.db.connection import get_connection
-
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from models import Message

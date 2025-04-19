@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from database import get_db
 from models import User
-from schemas import UserCreate, UserResponse
+from app.schemas.user import UserCreate, UserResponse, UserLoginRequest
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
@@ -12,6 +12,7 @@ router = APIRouter(prefix="/auth", tags=["Auth"])
 def signup(user: UserCreate, db: Session = Depends(get_db)):
     # 이메일 중복 체크
     existing_user = db.query(User).filter(User.email == user.email).first()
+    
     if existing_user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -23,6 +24,7 @@ def signup(user: UserCreate, db: Session = Depends(get_db)):
         email=user.email,
         password=user.password
     )
+    
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
@@ -30,7 +32,7 @@ def signup(user: UserCreate, db: Session = Depends(get_db)):
 
 # 로그인
 @router.post("/login", response_model=UserResponse)
-def login(user: UserCreate, response: Response, db: Session = Depends(get_db)):
+def login(user: UserLoginRequest, response: Response, db: Session = Depends(get_db)):
     db_user = db.query(User).filter(User.email == user.email).first()
 
     if not db_user or not user.password==db_user.password:

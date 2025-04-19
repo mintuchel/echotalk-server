@@ -6,8 +6,11 @@
 # user_data["password"] = get_password_hash(user_data["password"])
 # new_user = User(**user_data)
 
-
 from pydantic import BaseModel, EmailStr
+
+class UserLoginRequest(BaseModel):
+    email: EmailStr
+    password: str
 
 class UserCreate(BaseModel):
     name: str
