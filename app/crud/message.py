@@ -1,5 +1,4 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import func
 from models import Message
 
 # 새로운 메시지 생성

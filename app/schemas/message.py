@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from datetime import datetime
 
 class MessageRequest(BaseModel):
     chat_id: str
@@ -9,7 +10,7 @@ class MessageResponse(BaseModel) :
     chat_id: str
     question: str
     answer: str
-    created_at: str
+    created_at: datetime
 
     class Config:
         orm_mode = True
