@@ -43,7 +43,14 @@ def login(user: UserLoginRequest, response: Response, db: Session = Depends(get_
     
     # 쿠키에 사용자 ID 저장 
     # 클라이언트가 브라우저일 경우엔 FastAPI에서 Set-Cookie로 설정한 쿠키를 브라우저가 자동으로 저장하고, 이후 요청에 자동으로 쿠키를 담아서 보내줌
-    response.set_cookie(key="user_id", value=db_user.id, httponly=True, max_age=3600)
+    response.set_cookie(
+        key="user_id",
+        value=db_user.id,
+        httponly=True, # 자바스크립트에서 접근 불가. 보안상 좋아 (XSS 공격에 안전)
+        max_age=3600,
+        samesite="Lax", # CSRF 공격을 막기 위한 설정
+        secure=False # https:// 연결에서만 쿠키를 전송하게 할지 여부. 로컬 개발이라 False로 둬도 됨
+    )
 
     # User 모델 객체지만 Pydantic BaseModel 선언에 의해 UserResponse에 맞춰 자동 변환됨
     return db_user

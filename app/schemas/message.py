@@ -8,7 +8,7 @@ class MessageResponse(BaseModel) :
     id: str
     chat_id: str
     question: str
-    response: str
+    answer: str
     created_at: str
 
     class Config:

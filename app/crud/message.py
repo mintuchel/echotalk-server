@@ -19,7 +19,7 @@ def get_message_by_chat_id(chat_id: str, db: Session):
 
     results = (
         db.query(Message.question, Message.answer)
-        .filter(func.date(Message.chat_id) == chat_id)
+        .filter(Message.chat_id == chat_id)
         .order_by(Message.created_at.asc())
         .all()
     )
