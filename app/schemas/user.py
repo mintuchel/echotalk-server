@@ -8,11 +8,11 @@
 
 from pydantic import BaseModel, EmailStr
 
-class UserLoginRequest(BaseModel):
+class UserLogin(BaseModel):
     email: EmailStr
     password: str
 
-class UserCreate(BaseModel):
+class UserSignUp(BaseModel):
     name: str
     email: EmailStr
     password: str
