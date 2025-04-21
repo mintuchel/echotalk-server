@@ -10,5 +10,5 @@ def create_chat(user_id: str, db: Session):
     return db_chat
 
 # 특정 user_id의 전체 채팅 목록 조회
-def get_chats(user_id: str, db: Session):
+def get_chats_by_user_id(user_id: str, db: Session):
     return db.query(Chat).filter(Chat.user_id == user_id).all()
