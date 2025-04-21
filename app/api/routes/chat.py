@@ -7,7 +7,7 @@ from app.crud.chat import create_chat, get_chats_by_user_id
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from database import get_db
+from app.db.database import get_db
 
 router = APIRouter(prefix="/chat", tags=["chat"])
 

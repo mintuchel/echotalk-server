@@ -5,18 +5,18 @@ from typing import List
 from app.schemas.message import MessageRequest, MessageResponse
 from app.crud.message import create_message, get_message_by_chat_id
 from langchain_openai import ChatOpenAI
-from app.db.connection import get_pinecone_connection
+from app.db.database import get_pinecone
 from langchain_pinecone import PineconeVectorStore
 from langchain.embeddings.openai import OpenAIEmbeddings
 from sqlalchemy.orm import Session
 
-from database import get_db
+from app.db.database import get_db
 
 router = APIRouter(prefix="/message", tags=["message"])
 
 def ask_openai(question: str, contexts: List[str] = None) -> str :
     if contexts:
-        context_text = "\n\n".join(contexts[:3])  # 상위 3개만 사용 (길이 제한 고려)
+        context_text = "\n\n".join(contexts[:3])  # 상위 3개만 사용
         prompt = f"""다음 정보를 참고하여 사용자의 질문에 답하세요.
 
         ### 문서 정보 ###
@@ -43,7 +43,7 @@ def ask_openai(question: str, contexts: List[str] = None) -> str :
     return response.content
 
 def ask_pinecone(question: str):
-    conn = get_pinecone_connection()
+    conn = get_pinecone()
     embedding = OpenAIEmbeddings(openai_api_key=configs.openai_api_key)
     vectordb = PineconeVectorStore(index=conn, embedding=embedding)
 

@@ -1,8 +1,8 @@
 from fastapi import APIRouter, HTTPException, Depends, status, Response
 from sqlalchemy.orm import Session
 
-from database import get_db
-from models import User
+from app.db.database import get_db
+from app.db.models import User
 from app.schemas.user import UserLogin, UserSignUp, UserResponse
 from app.crud.user import create_user, get_user_by_email
 
@@ -28,10 +28,8 @@ def login(user: UserLogin, response: Response, db: Session = Depends(get_db)):
     
     # 유저 존재 유무 확인
     db_user = get_user_by_email(user.email, db)
-
     if not db_user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="유저를 찾을 수 없습니다.")
-    
     if not db_user.password == user.password:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail = "비밀번호가 올바르지 않습니다.")
 

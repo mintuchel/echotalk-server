@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from models import Message
+from app.db.models import Message
 
 # 새로운 메시지 생성
 def create_message(chat_id: str, question: str, answer: str, db:Session):

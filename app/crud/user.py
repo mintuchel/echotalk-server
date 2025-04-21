@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from models import User, Chat
+from app.db.models import User
 from app.schemas.user import UserSignUp
 
 # 새로운 유저 생성

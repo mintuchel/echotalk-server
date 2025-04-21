@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from models import Chat
+from app.db.models import Chat
 
 # 새로운 채팅 생성
 def create_chat(user_id: str, db: Session):
