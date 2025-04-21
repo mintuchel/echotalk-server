@@ -3,44 +3,38 @@ from sqlalchemy.orm import Session
 
 from database import get_db
 from models import User
-from app.schemas.user import UserCreate, UserResponse, UserLoginRequest
+from app.schemas.user import UserLogin, UserSignUp, UserResponse
+from app.crud.user import create_user, get_user_by_email
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
 # 회원가입
 @router.post("/signup", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
-def signup(user: UserCreate, db: Session = Depends(get_db)):
+def signup(request: UserSignUp, db: Session = Depends(get_db)):
     # 이메일 중복 체크
-    existing_user = db.query(User).filter(User.email == user.email).first()
-    
+    existing_user = db.query(User).filter(User.email == request.email).first()
     if existing_user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="이미 등록된 이메일입니다."
         )
 
-    new_user = User(
-        name=user.name,
-        email=user.email,
-        password=user.password
-    )
-    
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-    return new_user
+    new_user = create_user(db, request)
+    return new_user 
 
 # 로그인
 @router.post("/login", response_model=UserResponse, status_code=status.HTTP_200_OK)
-def login(user: UserLoginRequest, response: Response, db: Session = Depends(get_db)):
-    db_user = db.query(User).filter(User.email == user.email).first()
-
-    if not db_user or not user.password==db_user.password:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="이메일 또는 비밀번호가 올바르지 않습니다."
-        )
+def login(user: UserLogin, response: Response, db: Session = Depends(get_db)):
     
+    # 유저 존재 유무 확인
+    db_user = get_user_by_email(user.email, db)
+
+    if not db_user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="유저를 찾을 수 없습니다.")
+    
+    if not db_user.password == user.password:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail = "비밀번호가 올바르지 않습니다.")
+
     # 쿠키에 사용자 ID 저장 
     # 클라이언트가 브라우저일 경우엔 FastAPI에서 Set-Cookie로 설정한 쿠키를 브라우저가 자동으로 저장하고, 이후 요청에 자동으로 쿠키를 담아서 보내줌
     response.set_cookie(
