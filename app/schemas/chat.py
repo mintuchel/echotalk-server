@@ -6,6 +6,10 @@ class CreateChatRequest(BaseModel):
     user_id: str
     name: Optional[str] = None
 
+class RenameChatRequest(BaseModel) :
+    chat_id: str
+    new_name: str
+    
 class ChatResponse(BaseModel):
     id: str
     user_id: str

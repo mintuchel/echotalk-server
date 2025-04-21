@@ -12,3 +12,22 @@ def create_chat(user_id: str, db: Session):
 # 특정 user_id의 전체 채팅 목록 조회
 def get_chats_by_user_id(user_id: str, db: Session):
     return db.query(Chat).filter(Chat.user_id == user_id).all()
+
+# 특정 채팅 삭제
+def delete_chat_by_id(chat_id: str, db: Session) :
+    chat = db.query(Chat).filter(Chat.id == chat_id).first()
+    if not chat:
+        return False
+    db.delete(chat)
+    db.commit()
+    return True
+
+# 채팅 이름 변경
+def rename_chat_by_id(chat_id: str, new_name: str, db: Session) :
+    chat = db.query(Chat).filter(Chat.id == chat_id).first()
+    if not chat:
+        return None
+    chat.name = new_name
+    db.commit()
+    db.refresh(chat)
+    return chat

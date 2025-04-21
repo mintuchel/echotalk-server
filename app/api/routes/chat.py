@@ -2,8 +2,8 @@ from fastapi import APIRouter, HTTPException, status, Cookie
 
 from typing import List
 
-from app.schemas.chat import ChatResponse
-from app.crud.chat import create_chat, get_chats_by_user_id
+from app.schemas.chat import ChatResponse, RenameChatRequest
+from app.crud.chat import create_chat, get_chats_by_user_id, delete_chat_by_id, rename_chat_by_id
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
@@ -38,3 +38,21 @@ def get_chat_list(user_id: str = Cookie(None), db: Session = Depends(get_db)):
         return chats
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="get_chats_by_user_id 하면서 터짐")
+
+@router.delete("/{chat_id}", status_code = status.HTTP_204_NO_CONTENT)
+def delete_chat(chat_id: str, user_id: str = Cookie(None), db:Session = Depends(get_db)) :
+    if user_id is None:
+        raise HTTPException(status_code=401, detail="쿠키에 user_id가 없습니다.")
+    
+    deleted = delete_chat_by_id(chat_id, db)
+
+    if not deleted:
+        raise HTTPException(status_code=404, detail="Chat not found")
+
+
+@router.patch("/rename", status_code=status.HTTP_200_OK)
+def rename_chat(request: RenameChatRequest, db: Session = Depends(get_db)):
+    chat = rename_chat_by_id(request.chat_id, request.new_name, db)
+    if not chat:
+        raise HTTPException(status_code=404, detail="Chat not found")
+    return chat
