@@ -48,9 +48,11 @@ def delete_chat(chat_id: str, user_id: str = Cookie(None), db:Session = Depends(
 
     if not deleted:
         raise HTTPException(status_code=404, detail="Chat not found")
+    
+    return deleted
 
 
-@router.patch("/rename", status_code=status.HTTP_200_OK)
+@router.patch("", response_model=ChatResponse, status_code=status.HTTP_200_OK)
 def rename_chat(request: RenameChatRequest, db: Session = Depends(get_db)):
     chat = rename_chat_by_id(request.chat_id, request.new_name, db)
     if not chat:

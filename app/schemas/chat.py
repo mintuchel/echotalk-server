@@ -12,9 +12,7 @@ class RenameChatRequest(BaseModel) :
     
 class ChatResponse(BaseModel):
     id: str
-    user_id: str
-    name: Optional[str]
-    created_at: datetime
+    name: str
 
     class Config:
         orm_mode = True
