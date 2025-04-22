@@ -6,14 +6,13 @@ import app.db.models as models
 
 app = FastAPI()
 
-# 데이터베이스 테이블 생성
 models.Base.metadata.create_all(bind=engine)
 
-# CORS 설정
+# 기본적인 네트워킹 허용범위 설정
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173"],
-    allow_credentials=True, # Cookie 허용을 위해
+    allow_credentials=True, # Cookie 허용
     allow_methods=["*"],
     allow_headers=["*"],
 )
