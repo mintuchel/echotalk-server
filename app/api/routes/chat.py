@@ -3,7 +3,7 @@ from fastapi import APIRouter, HTTPException, status, Cookie
 from typing import List
 
 from app.schemas.chat import ChatResponse, RenameChatRequest
-from app.crud.chat import create_chat, get_chats_by_user_id, delete_chat_by_id, rename_chat_by_id
+from app.crud.chat import create_chat, get_chats_by_user_id, delete_chat_by_id, rename_chat_by_id, get_message_by_chat_id
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
@@ -29,7 +29,6 @@ def start_new_chat(user_id: str = Cookie(None), db: Session = Depends(get_db)):
 @router.get("", response_model=List[ChatResponse], status_code=status.HTTP_200_OK)
 def get_chat_list(user_id: str = Cookie(None), db: Session = Depends(get_db)):
 
-    # Cookie 가 없으면
     if user_id is None:
         raise HTTPException(status_code=401, detail="쿠키에 user_id가 없습니다.")
     
@@ -39,22 +38,44 @@ def get_chat_list(user_id: str = Cookie(None), db: Session = Depends(get_db)):
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="get_chats_by_user_id 하면서 터짐")
 
-@router.delete("/{chat_id}", status_code = status.HTTP_204_NO_CONTENT)
-def delete_chat(chat_id: str, user_id: str = Cookie(None), db:Session = Depends(get_db)) :
+# 특정 채팅의 메시지 조회
+# 특정 chat_id의 메시지 기록 보내기
+# {
+#   "id": "abc-123",
+#   "messages": [
+#     { "question": "Q1", "answer": "A1" },
+#     { "question": "Q2", "answer": "A2" }
+#   ]
+# }
+@router.get("/{id}", status_code=status.HTTP_200_OK)
+def get_chat_messages(id: str, user_id: str = Cookie(None), db: Session = Depends(get_db)):
+
     if user_id is None:
         raise HTTPException(status_code=401, detail="쿠키에 user_id가 없습니다.")
     
-    deleted = delete_chat_by_id(chat_id, db)
+    try:
+        messages = get_message_by_chat_id(id, db)
+        return {"id": id, "messages": messages}
+    except Exception as e:
+        return {"error": str(e)}
+
+# 특정 채팅 삭제
+@router.delete("/{id}", status_code = status.HTTP_204_NO_CONTENT)
+def delete_chat(id: str, user_id: str = Cookie(None), db:Session = Depends(get_db)) :
+    if user_id is None:
+        raise HTTPException(status_code=401, detail="쿠키에 user_id가 없습니다.")
+    
+    deleted = delete_chat_by_id(id, db)
 
     if not deleted:
         raise HTTPException(status_code=404, detail="Chat not found")
     
     return deleted
 
-
+# 특정 채팅 이름 변경
 @router.patch("", response_model=ChatResponse, status_code=status.HTTP_200_OK)
 def rename_chat(request: RenameChatRequest, db: Session = Depends(get_db)):
-    chat = rename_chat_by_id(request.chat_id, request.new_name, db)
+    chat = rename_chat_by_id(request.id, request.new_name, db)
     if not chat:
         raise HTTPException(status_code=404, detail="Chat not found")
     return chat
