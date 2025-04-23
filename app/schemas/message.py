@@ -2,8 +2,8 @@ from pydantic import BaseModel
 from datetime import datetime
 
 class MessageRequest(BaseModel):
-    chat_id: str
-    prompt: str
+    id: str
+    question: str
 
 class MessageResponse(BaseModel) :
     id: str

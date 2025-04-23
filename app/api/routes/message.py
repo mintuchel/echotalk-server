@@ -14,18 +14,18 @@ from app.core.rag import generate_response_with_llm, retrieve_relevant_documents
 def generate_chat_response(request: MessageRequest, db: Session = Depends(get_db)):
 
     # pinecone 을 통해 얻어진 결과
-    max_score, contexts = retrieve_relevant_documents(request.prompt)
+    max_score, contexts = retrieve_relevant_documents(request.question)
 
     # 유사도가 작다면
     if max_score < 0.8 :
         print("score too low.. \n asking openai...")
-        answer = generate_response_with_llm(request.prompt)
+        answer = generate_response_with_llm(request.question)
     else :
         print("using Pinecone-based context for OpenAI prompt...")
-        answer = generate_response_with_llm(request.prompt, contexts)
+        answer = generate_response_with_llm(request.question, contexts)
 
     if answer:
-        new_message = create_message(request.chat_id, request.prompt, answer, db)
+        new_message = create_message(request.id, request.question, answer, db)
         return new_message
     else :
         raise HTTPException(

@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, status, Cookie
 
 from typing import List
 
-from app.schemas.chat import ChatResponse, RenameChatRequest
+from app.schemas.chat import UpdateChatNameRequest, ChatResponse
 from app.crud.chat import create_chat, get_chats_by_user_id, delete_chat_by_id, rename_chat_by_id, get_message_by_chat_id
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
@@ -74,8 +74,8 @@ def delete_chat(id: str, user_id: str = Cookie(None), db:Session = Depends(get_d
 
 # 특정 채팅 이름 변경
 @router.patch("", response_model=ChatResponse, status_code=status.HTTP_200_OK)
-def rename_chat(request: RenameChatRequest, db: Session = Depends(get_db)):
-    chat = rename_chat_by_id(request.id, request.new_name, db)
+def rename_chat(request: UpdateChatNameRequest, db: Session = Depends(get_db)):
+    chat = rename_chat_by_id(request.id, request.name, db)
     if not chat:
         raise HTTPException(status_code=404, detail="Chat not found")
     return chat
