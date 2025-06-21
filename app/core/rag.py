@@ -1,16 +1,23 @@
-from typing import List
+from openai import OpenAI
 
-from langchain.embeddings.openai import OpenAIEmbeddings
-from langchain_openai import ChatOpenAI
+from typing import List
 
 from app.db.database import get_pinecone
 from app.core.config import configs
 from app.core.prompt_template import contextual_prompt
 
+client = OpenAI(api_key=configs.openai_api_key)
+
+def get_embedding(question:str) -> list:
+    response = client.embeddings.create(
+        input = question,
+        model = 'text-embedding-3-small'
+    )
+    return response.data[0].embedding
+
 def retrieve_relevant_documents(question: str):
 
-    embedding_model = OpenAIEmbeddings(openai_api_key=configs.openai_api_key)
-    query_vector = embedding_model.embed_query(question)
+    query_vector = get_embedding(question)
 
     pinecone_index = get_pinecone()
 
@@ -45,15 +52,12 @@ def get_rag_response(question: str) -> str:
     else :
         context_text = "\n\n".join(docs[:3])
         prompt = contextual_prompt(context_text, question)
-
-    llm = ChatOpenAI(
-        api_key = configs.openai_api_key,
-        model_name = "gpt-4o-mini",
-        temperature = 0.2, # 사실에 기반한 답변에 집중
+ 
+    response = client.responses.create(
+        model="gpt-4o-mini",
+        input=prompt,
+        temperature = 0.2
     )
 
-    # llm.invoke 는 동기 함수라 await 처리안해줘도 된다
-    # return type은 AIMessage 객체이고 그 중에 content field를 추출해주면 답변만 추출가능
-    response = llm.invoke(prompt)
-    print(response.content)
-    return response.content
+    print(response.output_text)
+    return response.output_text
