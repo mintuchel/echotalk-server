@@ -7,7 +7,7 @@ def create_user(user: UserSignUp, db: Session):
     new_user = User(
         name = user.name,
         email = user.email,
-        password = user.password # 실제로는 해싱필요
+        password = user.password # 나중에 꼭 해싱처리
     )
 
     db.add(new_user)
