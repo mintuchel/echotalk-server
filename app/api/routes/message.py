@@ -9,9 +9,9 @@ from app.core.rag import get_rag_response
 router = APIRouter(prefix="/message", tags=["message"])
 
 @router.post("", response_model=MessageResponse, status_code=status.HTTP_201_CREATED)
-async def generate_chat_response(request: MessageRequest, db: Session = Depends(get_db)):
+def generate_chat_response(request: MessageRequest, db: Session = Depends(get_db)):
     # 비동기 RAG 응답 생성
-    answer = await get_rag_response(request.question)
+    answer = get_rag_response(request.question)
 
     if answer:
         new_message = create_message(request.chat_id, request.question, answer, db)
