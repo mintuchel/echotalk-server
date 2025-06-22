@@ -1,10 +1,10 @@
 from typing import List
 
-from app.core.chain import rag_chain
+from app.core.chain import rag_qa
 
 def get_rag_response(question: str) -> str:
     try:
-        answer = rag_chain.rag_qa(question)
+        answer = rag_qa(question)
         return answer
         
     except Exception as e:
