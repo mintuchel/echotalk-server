@@ -7,13 +7,13 @@ from app.crud.chat import create_chat, get_chats_by_user_id, delete_chat_by_id, 
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from app.db.database import get_db
+from app.db.mysql import get_mysql
 
 router = APIRouter(prefix="/chat", tags=["chat"])
 
 # 새로운 채팅 시작
 @router.post("", response_model=ChatResponse, status_code=status.HTTP_201_CREATED)
-def start_new_chat(user_id: str = Cookie(None), db: Session = Depends(get_db)):
+def start_new_chat(user_id: str = Cookie(None), db: Session = Depends(get_mysql)):
 
     # Cookie 가 없으면
     if user_id is None:
@@ -27,7 +27,7 @@ def start_new_chat(user_id: str = Cookie(None), db: Session = Depends(get_db)):
 
 # 특정 유저의 채팅 목록 조회
 @router.get("", response_model=List[ChatResponse], status_code=status.HTTP_200_OK)
-def get_chat_list(user_id: str = Cookie(None), db: Session = Depends(get_db)):
+def get_chat_list(user_id: str = Cookie(None), db: Session = Depends(get_mysql)):
 
     if user_id is None:
         raise HTTPException(status_code=401, detail="쿠키에 user_id가 없습니다.")
@@ -48,7 +48,7 @@ def get_chat_list(user_id: str = Cookie(None), db: Session = Depends(get_db)):
 #   ]
 # }
 @router.get("/{id}", status_code=status.HTTP_200_OK)
-def get_chat_messages(id: str, user_id: str = Cookie(None), db: Session = Depends(get_db)):
+def get_chat_messages(id: str, user_id: str = Cookie(None), db: Session = Depends(get_mysql)):
 
     if user_id is None:
         raise HTTPException(status_code=401, detail="쿠키에 user_id가 없습니다.")
@@ -61,7 +61,7 @@ def get_chat_messages(id: str, user_id: str = Cookie(None), db: Session = Depend
 
 # 특정 채팅 삭제
 @router.delete("/{id}", status_code = status.HTTP_204_NO_CONTENT)
-def delete_chat(id: str, user_id: str = Cookie(None), db:Session = Depends(get_db)) :
+def delete_chat(id: str, user_id: str = Cookie(None), db:Session = Depends(get_mysql)) :
     if user_id is None:
         raise HTTPException(status_code=401, detail="쿠키에 user_id가 없습니다.")
     
@@ -74,7 +74,7 @@ def delete_chat(id: str, user_id: str = Cookie(None), db:Session = Depends(get_d
 
 # 특정 채팅 이름 변경
 @router.patch("", response_model=ChatResponse, status_code=status.HTTP_200_OK)
-def rename_chat(request: UpdateChatNameRequest, db: Session = Depends(get_db)):
+def rename_chat(request: UpdateChatNameRequest, db: Session = Depends(get_mysql)):
     chat = rename_chat_by_id(request.id, request.name, db)
     if not chat:
         raise HTTPException(status_code=404, detail="Chat not found")

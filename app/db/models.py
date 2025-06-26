@@ -4,9 +4,9 @@ from datetime import datetime
 from sqlalchemy import Column, Text, String, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 
-# database.py에서 생성한 Base 객체 import
+# mysql.py에서 생성한 Base 객체 import
 # 모든 Model 클래스들이 상속받을 기반 클래스임
-from app.db.database import Base
+from app.db.mysql import Base
 
 def generate_uuid():
     return str(uuid.uuid4())

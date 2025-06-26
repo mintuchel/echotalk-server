@@ -1,6 +1,4 @@
-from typing import List
-
-from app.core.chain import rag_qa
+from app.service.chain import rag_qa
 
 def get_rag_response(question: str) -> str:
     try:

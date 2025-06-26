@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends, status, Response
 from sqlalchemy.orm import Session
 
-from app.db.database import get_db
+from app.db.mysql import get_mysql
 from app.db.models import User
 from app.schemas.user import UserLogin, UserSignUp, UserResponse
 from app.crud.user import create_user, get_user_by_email
@@ -10,7 +10,7 @@ router = APIRouter(prefix="/auth", tags=["Auth"])
 
 # 회원가입
 @router.post("/signup", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
-def signup(request: UserSignUp, db: Session = Depends(get_db)):
+def signup(request: UserSignUp, db: Session = Depends(get_mysql)):
     # 이메일 중복 체크
     existing_user = db.query(User).filter(User.email == request.email).first()
     if existing_user:
@@ -24,7 +24,7 @@ def signup(request: UserSignUp, db: Session = Depends(get_db)):
 
 # 로그인
 @router.post("/login", response_model=UserResponse, status_code=status.HTTP_200_OK)
-def login(user: UserLogin, response: Response, db: Session = Depends(get_db)):
+def login(user: UserLogin, response: Response, db: Session = Depends(get_mysql)):
     
     # 유저 존재 유무 확인
     db_user = get_user_by_email(user.email, db)

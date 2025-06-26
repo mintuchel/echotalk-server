@@ -2,7 +2,7 @@ import time
 from uuid import uuid4
 from langchain.embeddings.openai import OpenAIEmbeddings
 from app.db.database import get_pinecone
-from app.core.utils import split_text
+from app.rag.utils import split_text
 from app.schemas.upload import Document
 from app.core.config import configs
 
