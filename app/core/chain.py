@@ -1,82 +1,48 @@
-from typing import List
-
 from langchain_openai import ChatOpenAI
-from langchain.embeddings.openai import OpenAIEmbeddings
+from langchain_openai import OpenAIEmbeddings
 from langchain_pinecone import PineconeVectorStore
-
+from langchain.chains import retrieval
 from app.db.database import get_pinecone
 from app.core.config import configs
-from app.core.prompt_template import contextual_prompt
+from langchain_core.prompts import ChatPromptTemplate
+from langchain.chains.combine_documents import create_stuff_documents_chain
 
-llm = ChatOpenAI(
-    api_key = configs.openai_api_key,
-    model_name = "gpt-4o-mini",
-    temperature = 0.2, # 사실에 기반한 답변에 집중
-)
-
-conn = get_pinecone()
-embedding = OpenAIEmbeddings(openai_api_key=configs.openai_api_key)
-vectordb = PineconeVectorStore(index=conn, embedding=embedding)
-
-def rag_qa(question: str) -> str:
-    # pinecone 을 통해 얻어진 결과
-    max_score, contexts = retrieve_relevant_documents(question)
-
-        # 유사도가 작다면
-    if max_score < 0.8 :
-        print("score too low.. \n asking openai...")
-        answer = generate_response_with_llm(question)
-    else :
-        print("using Pinecone-based context for OpenAI prompt...")
-        answer = generate_response_with_llm(question, contexts)
-
-    if answer :
-        return answer
-    else :
-        return "죄송합니다. 답변을 생성하는 중 오류가 발생했습니다."
-
-def generate_response_with_llm(question: str, contexts: List[str] = None) -> str :
-    if contexts:
-        context_text = "\n\n".join(contexts[:3])  # 상위 3개만 사용
-        prompt = contextual_prompt(context_text, question)
-    else:
-        prompt = question
-
-    llm = ChatOpenAI(
-        api_key = configs.openai_api_key,
-        model_name = "gpt-4o-mini",
-        temperature = 0.2, # 사실에 기반한 답변에 집중
-    )
-
-    # llm.invoke 는 동기 함수라 await 처리안해줘도 된다
-    # return type은 AIMessage 객체이고 그 중에 content field를 추출해주면 답변만 추출가능
-    response = llm.invoke(prompt)
-    print(response.content)
-    return response.content
-
-def retrieve_relevant_documents(question: str):
-    conn = get_pinecone()
-    embedding = OpenAIEmbeddings(openai_api_key=configs.openai_api_key)
-    vectordb = PineconeVectorStore(index=conn, embedding=embedding)
-
-    query_result = vectordb.similarity_search_with_score(query=question,k=5)
-
-    if not query_result :
-        return 0.0, []
+class RAGChain:
     
-    # 문서들을 담아 보낼 context
-    contexts = []
-    max_score = 0.0
+    def __init__(self):
+        # LangChain LLM 정의
+        self.llm = ChatOpenAI(
+            api_key=configs.openai_api_key,
+            model_name="gpt-4o-mini",
+            temperature=0.2
+        )
 
-    for doc, score in query_result:
-        text = doc.page_content.replace("\n", "")[:500]
-        title = doc.metadata["title"]
+        conn = get_pinecone()
+        self.embedder = OpenAIEmbeddings(openai_api_key=configs.openai_api_key)
+        self.vector_store = PineconeVectorStore(index=conn, embedding=self.embedder)
 
-        contexts.append(text)
-        max_score = max(max_score, score)
+        # LangChain의 체이닝 과정에 쉽게 통합할 수 있도록 Retriever 객체로 변환해주기
+        # Retriever 인터페이스를 활용해야 LangChain의 체인에 연결할 수 있다!
+        self.retriever = self.vector_store.as_retriever(
+            search_type="similarity_score_threshold",
+            search_kwargs={"k": 3, "score_threshold": 0.8}
+        )
 
-        print(score, title)
-        print(text, "....")
-        print("\n")
-        
-    return max_score, contexts
+    def rag_qa(self, question: str) -> str:
+
+        prompt = ChatPromptTemplate.from_messages(
+            "Answer the question based on the context:\n\n{context}\n\nQuestion: {input}"
+        )
+
+        document_chain = create_stuff_documents_chain(self.llm, prompt)
+
+        retrieval_chain = retrieval.create_retrieval_chain(self.retriever, document_chain)
+
+        response = retrieval_chain.invoke(question)
+
+        print(response)
+        # print(response["answer"])
+
+
+# 싱글톤 인스턴스 생성
+rag_chain = RAGChain()

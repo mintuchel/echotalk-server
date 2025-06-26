@@ -31,8 +31,8 @@ def get_db():
         # 라우터 처리가 끝나면 자동으로 연결 반환
         db.close()
 
-# Pinecone의 기본 메서드를 사용할 수 있는 클라이언트 Connection 객체 생성
-# Pinecone SDK의 raw index 객체를 반환
+# 한개의 데이터베이스(Index)에 대한 Connection 객체 생성
+# Pinecone에서 Index가 데이터베이스를 의미
 def get_pinecone() :
     pc = Pinecone(api_key = configs.pinecone_api_key)
     return pc.Index("echoit-vdb")
