@@ -16,44 +16,33 @@ llm = ChatOpenAI(
 
 index = get_pinecone()
 embedder = OpenAIEmbeddings(openai_api_key=configs.openai_api_key)
-vector_store = PineconeVectorStore(index=index, embedding=embedder)
 
 def retrieve_relevant_documents(question: str):
     
-    query_result = vector_store.similarity_search_with_score(query=question,k=5)
+    query_vector = embedder.embed_query(question)
+
+    result = index.query(
+        vector = query_vector,
+        top_k = 5,
+        include_metadata= True
+    )
     
-    if not query_result :
-        return 0.0, []
+    threshold = 0.8
+
+    filtered_matches = [m for m in result["matches"] if m["score"] >= threshold]
+
+    for match in filtered_matches:
+        print(f"Score: {match['score']}")
+        print(f"Text: {match['metadata'].get('text')}")
     
-    # 문서들을 담아 보낼 context
-    contexts = []
-    max_score = 0.0
-
-    for doc, score in query_result:
-        text = doc.page_content.replace("\n", "")[:500]
-        title = doc.metadata["title"]
-
-        contexts.append(text)
-        max_score = max(max_score, score)
-
-        print(score, title)
-        print(text, "....")
-        print("\n")
-        
-    return max_score, contexts
+    return [m["metadata"].get("text", "") for m in filtered_matches]
 
 def generate_response_with_llm(question: str, contexts: List[str] = None) -> str :
     if contexts:
-        context_text = "\n\n".join(contexts[:3])  # 상위 3개만 사용
+        context_text = "\n\n".join(contexts) 
         prompt = contextual_prompt(context_text, question)
     else:
         prompt = question
-
-    llm = ChatOpenAI(
-        api_key = configs.openai_api_key,
-        model_name = "gpt-4o-mini",
-        temperature = 0.2, # 사실에 기반한 답변에 집중
-    )
 
     # llm.invoke 는 동기 함수라 await 처리안해줘도 된다
     # return type은 AIMessage 객체이고 그 중에 content field를 추출해주면 답변만 추출가능
@@ -63,15 +52,15 @@ def generate_response_with_llm(question: str, contexts: List[str] = None) -> str
 
 def rag_qa(question: str) -> str:
     # pinecone 을 통해 얻어진 결과
-    max_score, contexts = retrieve_relevant_documents(question)
+    contexts = retrieve_relevant_documents(question)
 
-        # 유사도가 작다면
-    if max_score < 0.8 :
+    # 유사도가 작다면
+    if not contexts:
         print("score too low.. \n asking openai...")
-        answer = generate_response_with_llm(question)
     else :
         print("using Pinecone-based context for OpenAI prompt...")
-        answer = generate_response_with_llm(question, contexts)
+    
+    answer = generate_response_with_llm(question, contexts)
 
     if answer :
         return answer

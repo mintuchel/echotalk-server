@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.main import api_router
-from app.db.database import engine
+from app.db.mysql import engine
 import app.db.models as models
 
 app = FastAPI()
