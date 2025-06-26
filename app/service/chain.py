@@ -1,10 +1,9 @@
 from typing import List
 
 from langchain_openai import ChatOpenAI
-from langchain_openai import OpenAIEmbeddings
-from langchain_pinecone import PineconeVectorStore
 
 from app.db.pinecone import get_pinecone
+from app.service.utils import embedder
 from app.core.config import configs
 from app.service.prompt_template import contextual_prompt
 
@@ -14,11 +13,8 @@ llm = ChatOpenAI(
     temperature = 0.2, # 사실에 기반한 답변에 집중
 )
 
-index = get_pinecone()
-embedder = OpenAIEmbeddings(openai_api_key=configs.openai_api_key)
-
 def retrieve_relevant_documents(question: str):
-    
+    index = get_pinecone()
     query_vector = embedder.embed_query(question)
 
     result = index.query(
