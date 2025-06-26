@@ -6,7 +6,7 @@ from app.schemas.message import MessageRequest, MessageResponse
 from app.crud.message import create_message
 from app.service.rag import get_rag_response
 
-router = APIRouter(prefix="/message", tags=["message"])
+router = APIRouter(prefix="/message", tags=["Message"])
 
 @router.post("", response_model=MessageResponse, status_code=status.HTTP_201_CREATED)
 def generate_chat_response(request: MessageRequest, db: Session = Depends(get_mysql)):

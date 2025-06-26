@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.api.routes import auth, chat, message, upload
+from app.api.routes import auth, chat, message, docs
 
 # 이걸 root에 있는 router에 붙여주면 됨
 api_router = APIRouter()
@@ -8,4 +8,4 @@ api_router = APIRouter()
 api_router.include_router(chat.router)
 api_router.include_router(auth.router)
 api_router.include_router(message.router)
-api_router.include_router(upload.router)
+api_router.include_router(docs.router)

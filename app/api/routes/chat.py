@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 
 from app.db.mysql import get_mysql
 
-router = APIRouter(prefix="/chat", tags=["chat"])
+router = APIRouter(prefix="/chat", tags=["Chat"])
 
 # 새로운 채팅 시작
 @router.post("", response_model=ChatResponse, status_code=status.HTTP_201_CREATED)
